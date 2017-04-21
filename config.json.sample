@@ -1,0 +1,15 @@
+{
+  "apps": {
+    "nina": {
+      "consumer_key": "",
+      "consumer_token": ""
+    }
+  },
+  "accounts": {
+    "ninarudesuyo": {
+      "app": "nina",
+      "access_token": "",
+      "access_token_secret": ""
+    }
+  }
+}
