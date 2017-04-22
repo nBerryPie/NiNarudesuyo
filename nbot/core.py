@@ -1,5 +1,4 @@
 # coding: utf-8
-import asyncio
 from datetime import datetime
 import json
 import logging
@@ -25,7 +24,7 @@ class NBot(object):
         self.plugin_manager = PluginManager(self.logger)
 
     def run(self):
-        task = Thread(target=self.__schedule_task)
+        task = Thread(target=self.__schedule_task, name="ScheduleTask")
         task.start()
 
     def get_account(self, name: str) -> API:
@@ -44,7 +43,7 @@ class NBot(object):
     def __get_logger():
         path.exists(LOG_DIR) or makedirs(LOG_DIR)
         logger = logging.getLogger(__name__)
-        formatter = logging.Formatter("[%(asctime)s][%(threadName)s %(name)s/%(levelname)s]: %(message)s")
+        formatter = logging.Formatter("[%(asctime)s][%(threadName)s %(levelname)s]: %(message)s")
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(formatter)
         stream_handler.setLevel(logging.INFO)
@@ -62,5 +61,5 @@ class NBot(object):
         while True:
             for plugin in self.plugin_manager.plugins:
                 if datetime.now().minute in plugin.EXECUTE_MINUTES:
-                    Thread(target=plugin.execute, args=(self,)).start()
+                    Thread(target=plugin.execute, name=plugin.__name__, args=(self,)).start()
             sleep(60 - datetime.now().second)
