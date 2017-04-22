@@ -23,6 +23,3 @@ class PluginManager(object):
                 self.__plugins.append(m)
                 self.__logger.info("Load: {}".format(file_name))
 
-    def reload_plugins(self):
-        self.__plugins = []
-        self.load_plugins()
