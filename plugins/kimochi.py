@@ -18,25 +18,25 @@ def execute(bot: NBot):
     for tweet in tl:
         if tweet.favorited:
             continue
-        text = tweet.text
+        text = tweet.text.replace('\n', ' ')
+        logger.debug(text)
         if '@' in text:
             continue
         result = [
             m
-            for t in text.replace('\n', ' ').split(' ') if not t.startswith("http")
+            for t in text.split(' ') if not t.startswith("http")
             for m in JUMANPP.analysis(t).mrph_list()
         ]
-        b = False
+        s = ""
         l = []
         for m in result:
             if m.hinsi == "名詞":
-                if b:
-                    l[len(l) - 1] += m.midasi
-                else:
-                    l.append(m.midasi)
-                    b = True
-            elif not b:
-                b = False
+                s += m.midasi
+            elif s != "":
+                l.append(s)
+                s = ""
+        if s != "":
+            l.append(s)
         if len(l) == 0:
             continue
         random.shuffle(l)
