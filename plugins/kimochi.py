@@ -56,6 +56,7 @@ def execute(bot: NBot):
             logger.debug(e)
             continue
         api.create_favorite(tweet.id)
-        logger.debug(text)
-        logger.debug(choice)
+        logger.info("{}でごぜーますよ！".format(choice))
         return
+    logger.info("ツイートできなかったでごぜーます……")
+
