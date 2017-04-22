@@ -11,6 +11,7 @@ JUMANPP = Jumanpp()
 
 def execute(bot: NBot):
     logger = bot.logger
+    logger.info("準備するですよ")
     api = bot.get_account("ninarudesuyo")
     tl = api.home_timeline(count=100)
     random.shuffle(tl)
@@ -19,8 +20,9 @@ def execute(bot: NBot):
         if tweet.favorited:
             continue
         text = tweet.text.replace('\n', ' ')
-        logger.debug(text)
+        logger.debug("Text: {}".format(text))
         if '@' in text:
+            logger.debug("誰かへのリプライ")
             continue
         result = [
             m
@@ -37,7 +39,9 @@ def execute(bot: NBot):
                 s = ""
         if s != "":
             l.append(s)
+        logger.debug("Noun list: {}".format(l))
         if len(l) == 0:
+            logger.debug("名詞がない")
             continue
         random.shuffle(l)
         choice = None
@@ -45,7 +49,9 @@ def execute(bot: NBot):
             if not (max([ord(c) for c in t]) < 128 or len(t) < 2 or '#' in t):
                 choice = t
                 break
+        logger.debug("Choice: {}".format(choice))
         if choice is None:
+            logger.debug("条件を満たす名詞がない")
             continue
         try:
             if random.randint(0, 3) == 3:
