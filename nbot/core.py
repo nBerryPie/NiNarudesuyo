@@ -5,6 +5,8 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 from os import makedirs, path
+from threading import Thread
+from time import sleep
 from tweepy import API, OAuthHandler
 
 from nbot.constant import *
@@ -23,9 +25,8 @@ class NBot(object):
         self.plugin_manager = PluginManager(self.logger)
 
     def run(self):
-        loop = asyncio.get_event_loop()
-        asyncio.ensure_future(self.__schedule_task())
-        loop.run_forever()
+        task = Thread(target=self.__schedule_task)
+        task.start()
 
     def get_account(self, name: str) -> API:
         if name in self.__apis:
@@ -56,10 +57,10 @@ class NBot(object):
         logger.setLevel(logging.DEBUG)
         return logger
 
-    async def __schedule_task(self):
-        await asyncio.sleep(60 - datetime.now().second)
+    def __schedule_task(self):
+        sleep(60 - datetime.now().second)
         while True:
             for plugin in self.plugin_manager.plugins:
                 if datetime.now().minute in plugin.EXECUTE_MINUTES:
-                    plugin.execute(self)
-            await asyncio.sleep(60 - datetime.now().second)
+                    Thread(target=plugin.execute, args=(self,)).start()
+            sleep(60 - datetime.now().second)
