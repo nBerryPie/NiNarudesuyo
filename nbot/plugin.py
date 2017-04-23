@@ -5,13 +5,12 @@ from logging import getLogger
 from os import listdir
 from typing import List
 
-from nbot.constant import *
-
 
 class PluginManager(object):
 
-    def __init__(self):
+    def __init__(self, plugins_dir: str):
         self.__logger = getLogger(__name__)
+        self.plugins_dir = plugins_dir
         self.__plugins = []
         self.__schedule_tasks = [[[] for m in range(60)] for h in range(24)]
         self.__loading_module_name = None
@@ -24,9 +23,9 @@ class PluginManager(object):
         return self.__schedule_tasks[hour][minute]
 
     def load_plugins(self):
-        for file_name in listdir(PLUGINS_DIR):
+        for file_name in listdir(self.plugins_dir):
             if file_name.endswith(".py"):
-                m = import_module(".".join([PLUGINS_DIR, file_name[:-3]]))
+                m = import_module(".".join([self.plugins_dir, file_name[:-3]]))
                 self.__plugins.append(m)
                 self.__logger.info("Load Module: {}".format(m.__name__))
 
