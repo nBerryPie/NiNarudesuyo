@@ -3,12 +3,12 @@ from pyknp import Jumanpp
 import random
 import tweepy
 
-from nbot import NBot
+from nbot import NBot, schedule_task
 
-EXECUTE_MINUTES = [i for i in range(60) if i % 15 == 0]
 JUMANPP = Jumanpp()
 
 
+@schedule_task(minutes=[0, 15, 30, 45])
 def execute(bot: NBot):
     logger = bot.logger
     logger.info("準備するですよ")

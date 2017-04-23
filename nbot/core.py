@@ -59,7 +59,8 @@ class NBot(object):
     def __schedule_task(self):
         sleep(60 - datetime.now().second)
         while True:
-            for plugin in self.plugin_manager.plugins:
-                if datetime.now().minute in plugin.EXECUTE_MINUTES:
-                    Thread(target=plugin.execute, name=plugin.__name__, args=(self,)).start()
+            now = datetime.now()
+            l = self.plugin_manager.get_schedule_tasks(now.hour, now.minute)
+            for task in l:
+                task(self)
             sleep(60 - datetime.now().second)
