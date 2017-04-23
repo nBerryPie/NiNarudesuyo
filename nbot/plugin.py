@@ -1,5 +1,6 @@
 # coding: utf-8
 from importlib import import_module
+from inspect import stack, getargvalues
 from logging import getLogger
 from os import listdir
 from typing import List
@@ -25,12 +26,10 @@ class PluginManager(object):
     def load_plugins(self):
         for file_name in listdir(PLUGINS_DIR):
             if file_name.endswith(".py"):
-                self.__loading_module_name = ".".join([PLUGINS_DIR, file_name[:-3]])
-                m = import_module(self.__loading_module_name)
+                m = import_module(".".join([PLUGINS_DIR, file_name[:-3]]))
                 self.__plugins.append(m)
                 self.__logger.info("Load Module: {}".format(m.__name__))
-                self.__loading_module_name = None
 
     def add_schedule_task(self, hour, minute, task):
-        self.__schedule_tasks[hour][minute].append((".".join([self.__loading_module_name, task.__name__]), task))
+        self.__schedule_tasks[hour][minute].append((getargvalues(stack()[2].frame).locals['__name__'], task))
 

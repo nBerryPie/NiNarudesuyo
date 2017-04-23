@@ -2,7 +2,6 @@
 from datetime import datetime
 from functools import wraps
 import json
-from logging import getLogger
 from threading import Thread
 from time import sleep
 from tweepy import API, OAuthHandler
@@ -44,8 +43,8 @@ class __NBot(object):
         while True:
             now = datetime.now()
             l = self.plugin_manager.get_schedule_tasks(now.hour, now.minute)
-            for name, task in l:
-                task(name)
+            for module_name, task in l:
+                task(module_name)
             sleep(60 - datetime.now().second)
 
     def schedule_task(self, hours=list([h for h in range(24)]), minutes=list([0])):
@@ -53,8 +52,8 @@ class __NBot(object):
         def f(func):
 
             @wraps(func)
-            def decorated_func(name: str):
-                Thread(target=func, name=name).start()
+            def decorated_func(module_name: str):
+                Thread(target=func, name=".".join([module_name, func.__name__])).start()
 
             for hour in hours:
                 for minute in minutes:
