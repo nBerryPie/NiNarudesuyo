@@ -2,6 +2,7 @@
 from collections import defaultdict
 from functools import wraps
 from importlib import import_module
+from logging import getLogger
 from os import listdir
 from threading import Thread
 from typing import Callable, List
@@ -29,8 +30,8 @@ def schedule_task(hours=list([h for h in range(24)]), minutes=list([0])):
 
 class PluginManager(object):
 
-    def __init__(self, logger):
-        self.__logger = logger
+    def __init__(self):
+        self.__logger = getLogger(__name__)
         self.__plugins = []
         self.__schedule_tasks = {}
         self.load_plugins()

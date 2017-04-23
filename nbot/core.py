@@ -1,21 +1,20 @@
 # coding: utf-8
 from datetime import datetime
 import json
-import logging
-from logging.handlers import RotatingFileHandler
-from os import makedirs, path
+from logging import getLogger
 from threading import Thread
 from time import sleep
 from tweepy import API, OAuthHandler
 
 from nbot.constant import *
 from nbot.plugin import PluginManager
+from nbot.utils import initialize_logger
 
 
 class NBot(object):
 
     def __init__(self):
-        self.logger = self.__get_logger()
+        initialize_logger(LOG_DIR)
         self.__apis = {}
         with open("config.json", "r") as f:
             config = json.loads(f.read())
