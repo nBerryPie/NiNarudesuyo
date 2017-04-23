@@ -2,7 +2,7 @@
 from datetime import datetime
 from functools import wraps
 import json
-from threading import Thread
+from threading import Thread, current_thread
 from time import sleep
 from tweepy import API, OAuthHandler
 
@@ -24,7 +24,12 @@ class __NBot(object):
 
     def run(self):
         self.plugin_manager.load_plugins()
-        Thread(target=self.__schedule_task, name="ScheduleTask").start()
+        Thread(target=self.__schedule_task, name="ScheduleTask", daemon=current_thread()).start()
+        try:
+            while True:
+                pass
+        except:
+            pass
 
     def get_account(self, name: str) -> API:
         if name in self.__apis:
@@ -53,7 +58,7 @@ class __NBot(object):
 
             @wraps(func)
             def decorated_func(module_name: str):
-                Thread(target=func, name=".".join([module_name, func.__name__])).start()
+                Thread(target=func, name=".".join([module_name, func.__name__]), daemon=current_thread()).start()
 
             for hour in hours:
                 for minute in minutes:
