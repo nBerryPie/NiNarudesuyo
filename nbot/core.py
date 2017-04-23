@@ -17,8 +17,10 @@ class __NBot(object):
     def __init__(self) -> None:
         self.config_manager = ConfigManager()
         initialize_logger(self.config_manager.get_config_value("directory.logs", "logs"))
-        self.__accounts = {}
         self.__logger = getLogger(__name__)
+        self.__apis = {}
+        self.__accounts = self.config_manager.get_config_value("accounts", {})
+        self.__apps = self.config_manager.get_config_value("apps", {})
         self.plugin_manager = PluginManager(self.config_manager.get_config_value("directory.plugins", "plugins"))
 
     def run(self) -> None:
@@ -32,17 +34,20 @@ class __NBot(object):
         except:
             pass
 
-        if name in self.__accounts:
-            return self.__accounts[name]
     def get_account(self, name: str) -> Optional[API]:
+        if name in self.__apis:
+            return self.__apis[name]
         else:
-            account = self.config_manager.get_config_value("accounts", {})[name]
-            app = self.config_manager.get_config_value("apps", {})[account["app"]]
-            auth = OAuthHandler(app["consumer_key"], app["consumer_token"])
-            auth.set_access_token(account["access_token"], account["access_token_secret"])
-            api = API(auth)
-            self.__accounts[name] = api
-            return api
+            if name in self.__accounts:
+                account = self.__accounts[name]
+                if account["app"] in self.__apps:
+                    app = self.__apps[account["app"]]
+                    auth = OAuthHandler(app["consumer_key"], app["consumer_token"])
+                    auth.set_access_token(account["access_token"], account["access_token_secret"])
+                    api = API(auth)
+                    self.__apis[name] = api
+                    return api
+            return None
 
     def __schedule_task(self) -> None:
         sleep(60 - datetime.now().second)
