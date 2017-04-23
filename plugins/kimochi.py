@@ -24,11 +24,8 @@ def execute(bot: NBot):
         if '@' in text:
             logger.debug("誰かへのリプライ")
             continue
-        result = [
-            m
-            for t in text.split(' ') if not t.startswith("http")
-            for m in JUMANPP.analysis(t).mrph_list()
-        ]
+        text = ' '.join([t for t in text.split(' ') if not (t.startswith('http') or t.startswith('#'))])
+        result = JUMANPP.analysis(text).mrph_list()
         s = ""
         l = []
         for m in result:
