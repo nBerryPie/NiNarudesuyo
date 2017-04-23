@@ -4,14 +4,14 @@ from pyknp import Jumanpp
 import random
 import tweepy
 
-from nbot import NBot, schedule_task
+from nbot import bot
 
 JUMANPP = Jumanpp()
 logger = getLogger(__name__)
 
 
-@schedule_task(minutes=[0, 15, 30, 45])
-def execute(bot: NBot):
+@bot.schedule_task(minutes=[0, 15, 30, 45])
+def execute():
     logger.info("準備するですよ")
     api = bot.get_account("ninarudesuyo")
     tl = api.home_timeline(count=100)

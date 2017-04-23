@@ -1,31 +1,10 @@
 # coding: utf-8
-from collections import defaultdict
-from functools import wraps
 from importlib import import_module
 from logging import getLogger
 from os import listdir
-from threading import Thread
-from typing import Callable, List
+from typing import List
 
 from nbot.constant import *
-
-
-schedule_tasks = defaultdict(lambda: defaultdict(list))
-
-
-def schedule_task(hours=list([h for h in range(24)]), minutes=list([0])):
-
-    def f(func):
-
-        @wraps(func)
-        def decorated_func(bot):
-            Thread(target=func, name=func.__name__, args=(bot,)).start()
-
-        for hour in hours:
-            for minute in minutes:
-                schedule_tasks[hour][minute].append(decorated_func)
-        return decorated_func
-    return f
 
 
 class PluginManager(object):
@@ -33,8 +12,8 @@ class PluginManager(object):
     def __init__(self):
         self.__logger = getLogger(__name__)
         self.__plugins = []
-        self.__schedule_tasks = {}
-        self.load_plugins()
+        self.__schedule_tasks = [[[] for m in range(60)] for h in range(24)]
+        self.__loading_module_name = None
 
     @property
     def plugins(self):
@@ -46,7 +25,12 @@ class PluginManager(object):
     def load_plugins(self):
         for file_name in listdir(PLUGINS_DIR):
             if file_name.endswith(".py"):
-                m = import_module(".".join([PLUGINS_DIR, file_name[:-3]]))
+                self.__loading_module_name = ".".join([PLUGINS_DIR, file_name[:-3]])
+                m = import_module(self.__loading_module_name)
                 self.__plugins.append(m)
-                self.__logger.info("Load: {}".format(file_name))
-        self.__schedule_tasks = schedule_tasks
+                self.__logger.info("Load Module: {}".format(m.__name__))
+                self.__loading_module_name = None
+
+    def add_schedule_task(self, hour, minute, task):
+        self.__schedule_tasks[hour][minute].append((".".join([self.__loading_module_name, task.__name__]), task))
+

@@ -1,5 +1,6 @@
 # coding: utf-8
 from datetime import datetime
+from functools import wraps
 import json
 from logging import getLogger
 from threading import Thread
@@ -11,7 +12,7 @@ from nbot.plugin import PluginManager
 from nbot.utils import initialize_logger
 
 
-class NBot(object):
+class __NBot(object):
 
     def __init__(self):
         initialize_logger(LOG_DIR)
@@ -20,11 +21,11 @@ class NBot(object):
             config = json.loads(f.read())
             self.__apps = config["apps"]
             self.__accounts = config["accounts"]
-        self.plugin_manager = PluginManager(self.logger)
+            self.plugin_manager = PluginManager()
 
     def run(self):
-        task = Thread(target=self.__schedule_task, name="ScheduleTask")
-        task.start()
+        self.plugin_manager.load_plugins()
+        Thread(target=self.__schedule_task, name="ScheduleTask").start()
 
     def get_account(self, name: str) -> API:
         if name in self.__apis:
@@ -38,28 +39,28 @@ class NBot(object):
             self.__apis[name] = api
             return api
 
-    @staticmethod
-    def __get_logger():
-        path.exists(LOG_DIR) or makedirs(LOG_DIR)
-        logger = logging.getLogger(__name__)
-        formatter = logging.Formatter("[%(asctime)s][%(threadName)s %(levelname)s]: %(message)s")
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-        stream_handler.setLevel(logging.INFO)
-        logger.addHandler(stream_handler)
-        file_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log"
-        file_handler = RotatingFileHandler("/".join([LOG_DIR, file_name]), encoding='utf-8')
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(logging.DEBUG)
-        logger.addHandler(file_handler)
-        logger.setLevel(logging.DEBUG)
-        return logger
-
     def __schedule_task(self):
         sleep(60 - datetime.now().second)
         while True:
             now = datetime.now()
             l = self.plugin_manager.get_schedule_tasks(now.hour, now.minute)
-            for task in l:
-                task(self)
+            for name, task in l:
+                task(name)
             sleep(60 - datetime.now().second)
+
+    def schedule_task(self, hours=list([h for h in range(24)]), minutes=list([0])):
+
+        def f(func):
+
+            @wraps(func)
+            def decorated_func(name: str):
+                Thread(target=func, name=name).start()
+
+            for hour in hours:
+                for minute in minutes:
+                    self.plugin_manager.add_schedule_task(hour, minute, decorated_func)
+            return decorated_func
+
+        return f
+
+bot = __NBot()
