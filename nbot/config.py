@@ -4,24 +4,27 @@ import json
 class ConfigManager(object):
 
     def __init__(self):
-        self.apps = {}
-        self.accounts = {}
-        self.logs_dir = ""
-        self.plugins_dir = ""
+        self.__config = {}
         self.__load_config()
 
     def __load_config(self):
         with open("config.json", "r") as f:
-            root = json.loads(f.read())
-            self.apps = root["apps"]
-            self.accounts = root["accounts"]
-            if "directory" in root:
-                directory = root["directory"]
-                self.logs_dir = directory["logs"] if "logs" in directory else "logs"
-                self.plugins_dir = directory["plugins"] if "plugins" in directory else "plugins"
-            else:
-                self.logs_dir = "logs"
-                self.plugins_dir = "plugins"
+            self.__config = json.loads(f.read())
 
     def reload_config(self):
         self.__load_config()
+
+    def get_config_value(self, path: str, default=None):
+        l = path.split(".")
+
+        def f(d):
+            s = l.pop(0)
+            if isinstance(d, dict) and s in d:
+                if len(l) == 0:
+                    return d[s]
+                else:
+                    return f(d[s])
+            else:
+                return default
+
+        return f(self.__config)
