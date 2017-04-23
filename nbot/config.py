@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 
 class ConfigManager(object):
@@ -14,7 +15,7 @@ class ConfigManager(object):
     def reload_config(self):
         self.__load_config()
 
-    def get_config_value(self, path: str, default=None):
+    def get_config_value(self, path: str, default: Any=None):
         l = path.split(".")
 
         def f(d):

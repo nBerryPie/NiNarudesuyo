@@ -4,7 +4,7 @@ from logging.handlers import RotatingFileHandler
 from os import makedirs, path
 
 
-def initialize_logger(log_dir):
+def initialize_logger(log_dir: str) -> None:
     path.exists(log_dir) or makedirs(log_dir)
     logger = getLogger()
     formatter = Formatter("[%(asctime)s][%(threadName)s %(name)s/%(levelname)s]: %(message)s")

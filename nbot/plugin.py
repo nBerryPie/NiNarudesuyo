@@ -3,7 +3,7 @@ from importlib import import_module
 from inspect import stack, getargvalues
 from logging import getLogger
 from os import listdir
-from typing import List
+from typing import Callable, List, Optional, Tuple
 
 
 class PluginManager(object):
@@ -19,16 +19,17 @@ class PluginManager(object):
     def plugins(self):
         return list(self.__plugins)
 
-    def get_schedule_tasks(self, hour, minute) -> List:
+    def get_schedule_tasks(self, hour: int, minute: int) -> List[Tuple[str, Callable[[str], None]]]:
         return self.__schedule_tasks[hour][minute]
 
-    def load_plugins(self):
+
+    def load_plugins(self) -> None:
         for file_name in listdir(self.plugins_dir):
             if file_name.endswith(".py"):
                 m = import_module(".".join([self.plugins_dir, file_name[:-3]]))
                 self.__plugins.append(m)
                 self.__logger.info("Load Module: {}".format(m.__name__))
 
-    def add_schedule_task(self, hour, minute, task):
+    def add_schedule_task(self, hour: int, minute: int, task: Callable[[str], None]) -> None:
         self.__schedule_tasks[hour][minute].append((getargvalues(stack()[2].frame).locals['__name__'], task))
 

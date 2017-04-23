@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import wraps
 from threading import Thread, current_thread
 from time import sleep
+from typing import Callable, List, Optional
 from tweepy import API, OAuthHandler
 
 from nbot.config import ConfigManager
@@ -12,13 +13,13 @@ from nbot.utils import initialize_logger
 
 class __NBot(object):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.config_manager = ConfigManager()
         initialize_logger(self.config_manager.get_config_value("directory.logs", "logs"))
         self.__accounts = {}
         self.plugin_manager = PluginManager(self.config_manager.get_config_value("directory.plugins", "plugins"))
 
-    def run(self):
+    def run(self) -> None:
         self.plugin_manager.load_plugins()
         Thread(target=self.__schedule_task, name="ScheduleTask", daemon=current_thread()).start()
         try:
@@ -27,9 +28,9 @@ class __NBot(object):
         except:
             pass
 
-    def get_account(self, name: str) -> API:
         if name in self.__accounts:
             return self.__accounts[name]
+    def get_account(self, name: str) -> Optional[API]:
         else:
             account = self.config_manager.get_config_value("accounts", {})[name]
             app = self.config_manager.get_config_value("apps", {})[account["app"]]
@@ -39,7 +40,7 @@ class __NBot(object):
             self.__accounts[name] = api
             return api
 
-    def __schedule_task(self):
+    def __schedule_task(self) -> None:
         sleep(60 - datetime.now().second)
         while True:
             now = datetime.now()
@@ -48,13 +49,14 @@ class __NBot(object):
                 task(module_name)
             sleep(60 - datetime.now().second)
 
-    def schedule_task(self, hours=list([h for h in range(24)]), minutes=list([0])):
+    def schedule_task(self, hours: List[int]=list([h for h in range(24)]), minutes: List[int]=list([0])) \
+            -> Callable[[Callable[[], None]], Callable[[str], None]]:
 
-        def f(func):
+        def f(func: Callable[[], None]) -> Callable[[str], None]:
 
             @wraps(func)
-            def decorated_func(module_name: str):
-                Thread(target=func, name=".".join([module_name, func.__name__]), daemon=current_thread()).start()
+            def decorated_func(module_name: str) -> None:
+                create_thread(func, module_name).start()
 
             for hour in hours:
                 for minute in minutes:
