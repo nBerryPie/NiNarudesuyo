@@ -18,3 +18,4 @@ def initialize_logger(log_dir):
     file_handler.setLevel(DEBUG)
     logger.addHandler(file_handler)
     logger.setLevel(DEBUG)
+    getLogger("tweepy").setLevel(100)
