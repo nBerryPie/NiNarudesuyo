@@ -5,15 +5,8 @@ from typing import Any
 class ConfigManager(object):
 
     def __init__(self):
-        self.__config = {}
-        self.__load_config()
-
-    def __load_config(self):
         with open("config.json", "r") as f:
             self.__config = json.loads(f.read())
-
-    def reload_config(self):
-        self.__load_config()
 
     def get_config_value(self, path: str, default: Any=None):
         l = path.split(".")
