@@ -1,4 +1,5 @@
 # coding: utf-8
+from cmd import Cmd
 from datetime import datetime
 from functools import wraps
 from logging import getLogger
@@ -61,15 +62,33 @@ class __NBot(object):
             sleep(60 - datetime.now().second)
 
     def __command_task(self) -> None:
-        while True:
-            l = input("> ").split(" ")
-            command = l.pop(0)
-            t = self.plugin_manager.get_command_task(command)
-            if t is None:
-                self.__logger.warning("Unknown Command.")
-            else:
-                self.__logger.debug("Function Call: {}()".format(t[0]))
-                t[1](t[0], l)
+
+        class Command(Cmd):
+            prompt = "> "
+            logger = getLogger(__name__)
+
+            def __getattr__(self, item: str):
+                if item.startswith("do_"):
+                    command = item[3:]
+                    t = bot.plugin_manager.get_command_task(command)
+                    if t is None:
+                        return lambda args: self.logger.warning("Unknown Command.")
+                    else:
+                        self.logger.debug("Function Call: {}()".format(t[0]))
+                        return lambda args: t[1](t[0], args)
+                elif item.startswith("help_"):
+                    # ToDo: helpの処理を書く
+                    raise AttributeError
+                raise AttributeError
+
+            def complete(self, text: str, state: int):
+                commands = [s for s in bot.plugin_manager.commands if s.startswith(text)]
+                if len(commands) <= state:
+                    return None
+                else:
+                    return commands[state]
+
+        Command().cmdloop()
 
     def schedule_task(self, hours: List[int]=list([h for h in range(24)]), minutes: List[int]=list([0])) \
             -> Callable[[Callable[[], None]], Callable[[str], None]]:
