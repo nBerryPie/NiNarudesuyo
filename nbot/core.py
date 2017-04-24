@@ -30,10 +30,8 @@ class __NBot(object):
         import nbot.command
         self.plugin_manager.load_plugins()
         Thread(target=self.__schedule_task, name="ScheduleTask", daemon=current_thread()).start()
-        Thread(target=self.__command_task, name="CommandTask", daemon=current_thread()).start()
         try:
-            while True:
-                pass
+            self.__command_task()
         except:
             pass
 
