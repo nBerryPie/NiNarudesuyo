@@ -58,6 +58,7 @@ class __NBot(object):
             now = datetime.now()
             l = self.plugin_manager.get_schedule_tasks(now.hour, now.minute)
             for module_name, task in l:
+                self.__logger.debug("Function Call: {}()".format(module_name))
                 task(module_name)
             sleep(60 - datetime.now().second)
 
@@ -69,6 +70,7 @@ class __NBot(object):
             if t is None:
                 self.__logger.warning("Unknown Command.")
             else:
+                self.__logger.debug("Function Call: {}()".format(t[0]))
                 t[1](t[0], l)
 
     def schedule_task(self, hours: List[int]=list([h for h in range(24)]), minutes: List[int]=list([0])) \
