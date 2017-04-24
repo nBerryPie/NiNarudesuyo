@@ -16,7 +16,10 @@ class __NBot(object):
 
     def __init__(self) -> None:
         self.config_manager = ConfigManager()
-        initialize_logger(self.config_manager.get_config_value("directory.logs", "logs"))
+        initialize_logger(
+            self.config_manager.get_config_value("directory.logs", "logs"),
+            self.config_manager.get_config_value("directory.plugins", "plugins")
+        )
         self.__logger = getLogger(__name__)
         self.__apis = {}
         self.__accounts = self.config_manager.get_config_value("accounts", {})

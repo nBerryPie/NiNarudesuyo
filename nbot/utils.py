@@ -3,11 +3,11 @@ from logging import getLogger, Formatter, StreamHandler, INFO, DEBUG
 from logging.handlers import RotatingFileHandler
 from os import makedirs, path
 from threading import Thread, current_thread
-from typing import Any, Callable, Tuple
+from typing import Callable, Tuple
 
 
-def initialize_logger(log_dir: str) -> None:
-    path.exists(log_dir) or makedirs(log_dir)
+def initialize_logger(logs_dir: str, plugins_dir: str) -> None:
+    path.exists(logs_dir) or makedirs(logs_dir)
     logger = getLogger()
     formatter = Formatter("[%(asctime)s][%(name)s/%(levelname)s]: %(message)s")
     stream_handler = StreamHandler()
@@ -15,12 +15,12 @@ def initialize_logger(log_dir: str) -> None:
     stream_handler.setLevel(INFO)
     logger.addHandler(stream_handler)
     file_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log"
-    file_handler = RotatingFileHandler("/".join([log_dir, file_name]), encoding='utf-8')
+    file_handler = RotatingFileHandler("/".join([logs_dir, file_name]), encoding='utf-8')
     file_handler.setFormatter(formatter)
     file_handler.setLevel(DEBUG)
     logger.addHandler(file_handler)
-    logger.setLevel(DEBUG)
-    getLogger("tweepy").setLevel(100)
+    getLogger("nbot").setLevel(DEBUG)
+    getLogger(plugins_dir).setLevel(DEBUG)
 
 
 def create_thread(target: Callable[[], None], module_name: str, args: Tuple=()) -> Thread:
