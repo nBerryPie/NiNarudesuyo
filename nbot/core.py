@@ -63,7 +63,7 @@ class __NBot(object):
 
     def __command_task(self) -> None:
         while True:
-            l = input().split(" ")
+            l = input("> ").split(" ")
             command = l.pop(0)
             t = self.plugin_manager.get_command_task(command)
             if t is None:
