@@ -7,5 +7,5 @@ logger = getLogger(__name__)
 
 
 @bot.command_task("commands")
-def on_command_command(_: List[str]):
-    logger.info("Command List: {}".format(", ".join(bot.plugin_manager.commands)))
+def on_commands_command(_: List[str]):
+    print("Command List: {}".format(", ".join(bot.plugin_manager.commands)))
