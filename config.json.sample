@@ -11,5 +11,9 @@
       "access_token": "",
       "access_token_secret": ""
     }
+  },
+  "kimochi": {
+    "account": "ninarudesuyo",
+    "minutes": [0, 15, 30, 45]
   }
 }

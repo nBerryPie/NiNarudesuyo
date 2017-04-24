@@ -10,10 +10,12 @@ JUMANPP = Jumanpp()
 logger = getLogger(__name__)
 
 
-@bot.schedule_task(minutes=[0, 15, 30, 45])
+@bot.schedule_task(minutes=bot.config_manager.get_config_value("kimochi.minutes", []))
 def execute():
     logger.info("準備するですよ")
-    api = bot.get_account("ninarudesuyo")
+    api = bot.get_account(bot.config_manager.get_config_value("kimochi.account"))
+    if api is None:
+        logger.warning("アカウントの取得に失敗しました")
     tl = api.home_timeline(count=100)
     random.shuffle(tl)
 
