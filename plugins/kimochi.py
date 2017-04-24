@@ -26,7 +26,11 @@ def execute():
             logger.debug("誰かへのリプライ")
             continue
         text = ' '.join([t for t in text.split(' ') if not (t.startswith('http') or t.startswith('#'))])
-        result = JUMANPP.analysis(text).mrph_list()
+        try:
+            result = JUMANPP.analysis(text).mrph_list()
+        except ValueError:
+            logger.debug("analysisの失敗")
+            continue
         s = ""
         l = []
         for m in result:
