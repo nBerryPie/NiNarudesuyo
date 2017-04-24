@@ -57,14 +57,16 @@ def execute():
             continue
         try:
             if random.randint(0, 3) == 3:
-                api.update_status(status="{}の気持ちがつかめなかったでごぜーます……".format(choice))
+                status = "{}の気持ちがつかめなかったでごぜーます……".format(choice)
             else:
-                api.update_status(status="{}の気持ちになるですよ".format(choice))
+                status = "{}の気持ちになるですよ".format(choice)
+            api.update_status(status=status)
+            logger.info(status)
         except tweepy.TweepError as e:
             logger.debug(e)
             continue
         api.create_favorite(tweet.id)
-        logger.info("{}でごぜーますよ！".format(choice))
+        logger.info("お気に入りでごぜーます！")
         return
     logger.info("ツイートできなかったでごぜーます……")
 
