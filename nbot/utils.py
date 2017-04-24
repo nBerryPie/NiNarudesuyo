@@ -23,5 +23,5 @@ def initialize_logger(logs_dir: str, plugins_dir: str) -> None:
     getLogger(plugins_dir).setLevel(DEBUG)
 
 
-def create_thread(target: Callable[[], None], module_name: str, args: Tuple=()) -> Thread:
-    return Thread(target=target, name=".".join([module_name, target.__name__]), args=args, daemon=current_thread())
+def create_thread(target: Callable[[], None], name: str, args: Tuple=()) -> Thread:
+    return Thread(target=target, name=name, args=args, daemon=current_thread())

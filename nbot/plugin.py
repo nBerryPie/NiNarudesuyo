@@ -33,8 +33,12 @@ class PluginManager(object):
                 self.__plugins.append(m)
                 self.__logger.info("Load Module: {}".format(m.__name__))
 
+    @staticmethod
+    def __get_function_name(func: Callable[[], None]):
+        return '.'.join([getargvalues(stack()[3].frame).locals['__name__'], func.__name__])
+
     def add_schedule_task(self, hour: int, minute: int, task: Callable[[str], None]) -> None:
-        self.__schedule_tasks[hour][minute].append((getargvalues(stack()[2].frame).locals['__name__'], task))
+        self.__schedule_tasks[hour][minute].append((self.__get_function_name(task), task))
 
     def add_command_task(self, command: str, task: Callable[[str, List[str]], None]) -> None:
-        self.__command_tasks[command] = (getargvalues(stack()[2].frame).locals['__name__'], task)
+        self.__command_tasks[command] = (self.__get_function_name(task), task)
