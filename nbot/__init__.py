@@ -1,2 +1,4 @@
 # coding: utf-8
-from nbot.core import bot
+from nbot.core import NBot
+
+bot = NBot()

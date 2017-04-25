@@ -14,7 +14,7 @@ from nbot.plugin import PluginManager
 from nbot.utils import initialize_logger, create_thread
 
 
-class __NBot(object):
+class NBot(object):
 
     def __init__(self) -> None:
         self.config_manager = ConfigManager()
@@ -120,5 +120,3 @@ class __NBot(object):
             return decorated_func
 
         return f
-
-bot = __NBot()

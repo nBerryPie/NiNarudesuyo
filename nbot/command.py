@@ -1,9 +1,6 @@
-from logging import getLogger
 from typing import List
 
-from nbot.core import bot
-
-logger = getLogger(__name__)
+from nbot import bot
 
 
 @bot.command_task("commands")
