@@ -57,9 +57,8 @@ class NBot(object):
         sleep(60 - datetime.now().second)
         while True:
             now = datetime.now()
-            l = self.plugin_manager.get_schedule_tasks(now.hour, now.minute)
-            for task in l:
-                task()
+            for task in self.plugin_manager.get_schedule_tasks():
+                task(now)
             sleep(60 - datetime.now().second)
 
     def __command_task(self) -> None:
@@ -78,7 +77,7 @@ class NBot(object):
                     if task is None:
                         return lambda args: print("Unknown Command.")
                     else:
-                        return lambda args: task(args)
+                        return lambda args: task(args.split(' '))
 
                 elif item.startswith("help_"):
                     # ToDo: helpの処理を書く
@@ -94,33 +93,45 @@ class NBot(object):
 
         Command(self).cmdloop()
 
-    def schedule_task(self, hours: List[int]=list([h for h in range(24)]), minutes: List[int]=list([0])) \
-            -> Callable[[Callable[[], None]], Callable[[], None]]:
+    def schedule_task(
+            self,
+            name: str=None,
+            hours: List[int]=list([h for h in range(24)]),
+            minutes: List[int]=list([0])
+    ) -> Callable[[Callable[[], None]], Callable[[], None]]:
 
         def f(func: Callable[[], None]) -> Callable[[str], None]:
-            name = '.'.join([getargvalues(stack()[1].frame).locals['__name__'], func.__name__])
+            if name:
+                task_name = name
+            else:
+                task_name = '_'.join([getargvalues(stack()[1].frame).locals['__name__'].split(".")[1], func.__name__])
 
             @wraps(func)
             def decorated_func() -> None:
-                create_thread(func, name).start()
+                create_thread(func, task_name).start()
 
-            for hour in hours:
-                for minute in minutes:
-                    self.plugin_manager.add_schedule_task(hour, minute, decorated_func)
+            self.plugin_manager.add_schedule_task(hours, minutes, decorated_func, task_name)
             return decorated_func
 
         return f
 
-    def command_task(self, command: str) -> Callable[[Callable[[List[str]], None]], Callable[[List[str]], None]]:
+    def command_task(
+            self,
+            command: str,
+            name: str=None
+    ) -> Callable[[Callable[[List[str]], None]], Callable[[List[str]], None]]:
 
         def f(func: Callable[[List[str]], None]) -> Callable[[List[str]], None]:
-            name = '.'.join([getargvalues(stack()[1].frame).locals['__name__'], func.__name__])
+            if name:
+                task_name = name
+            else:
+                task_name = '_'.join([getargvalues(stack()[1].frame).locals['__name__'].split(".")[1], func.__name__])
 
             @wraps(func)
             def decorated_func(args: List[str]) -> None:
-                create_thread(func, name, (args,)).start()
+                create_thread(func, task_name, (args,)).start()
 
-            self.plugin_manager.add_command_task(command, decorated_func)
+            self.plugin_manager.add_command_task(command, decorated_func, task_name)
             return decorated_func
 
         return f
