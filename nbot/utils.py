@@ -9,7 +9,7 @@ from typing import Callable, Tuple
 def initialize_logger(logs_dir: str, plugins_dir: str) -> None:
     path.exists(logs_dir) or makedirs(logs_dir)
     logger = getLogger()
-    formatter = Formatter("[%(asctime)s][%(name)s/%(levelname)s]: %(message)s")
+    formatter = Formatter("[%(asctime)s][%(threadName)s %(name)s/%(levelname)s]: %(message)s")
     stream_handler = StreamHandler()
     stream_handler.setFormatter(formatter)
     stream_handler.setLevel(INFO)
