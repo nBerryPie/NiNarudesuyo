@@ -23,7 +23,7 @@ def execute():
         if tweet.favorited:
             continue
         text = tweet.text.replace('\n', ' ')
-        logger.debug("Text: {}".format(text))
+        logger.debug(f"Text: {text}")
         if '@' in text:
             logger.debug("誰かへのリプライ")
             continue
@@ -43,7 +43,7 @@ def execute():
                 s = ""
         if s != "":
             l.append(s)
-        logger.debug("Noun list: {}".format(l))
+        logger.debug(f"Noun list: {l}")
         if len(l) == 0:
             logger.debug("名詞がない")
             continue
@@ -53,15 +53,18 @@ def execute():
             if not (max([ord(c) for c in t]) < 128 or len(t) < 2 or '#' in t):
                 choice = t
                 break
-        logger.debug("Choice: {}".format(choice))
+        logger.debug(f"Choice: {choice}")
         if choice is None:
             logger.debug("条件を満たす名詞がない")
             continue
+        messages = [
+            message["text"]
+            for message in bot.config_manager.get_config_value("kimochi.messages", ["{}"])
+            if isinstance(message, dict)
+            for _ in range(message["ratio"] if "ratio" in message else 1)
+        ]
+        status = random.choice(messages).format(choice)
         try:
-            if random.randint(0, 3) == 3:
-                status = "{}の気持ちがつかめなかったでごぜーます……".format(choice)
-            else:
-                status = "{}の気持ちになるですよ".format(choice)
             api.update_status(status=status)
             logger.info(status)
         except tweepy.TweepError as e:
