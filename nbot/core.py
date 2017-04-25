@@ -2,6 +2,7 @@
 from cmd import Cmd
 from datetime import datetime
 from functools import wraps
+from inspect import stack, getargvalues
 from logging import getLogger
 from threading import Thread, current_thread
 from time import sleep
@@ -56,9 +57,8 @@ class __NBot(object):
         while True:
             now = datetime.now()
             l = self.plugin_manager.get_schedule_tasks(now.hour, now.minute)
-            for module_name, task in l:
-                self.__logger.debug("Function Call: {}()".format(module_name))
-                task(module_name)
+            for task in l:
+                task()
             sleep(60 - datetime.now().second)
 
     def __command_task(self) -> None:
@@ -70,12 +70,12 @@ class __NBot(object):
             def __getattr__(self, item: str):
                 if item.startswith("do_"):
                     command = item[3:]
-                    t = bot.plugin_manager.get_command_task(command)
-                    if t is None:
-                        return lambda args: self.logger.warning("Unknown Command.")
+                    task = bot.plugin_manager.get_command_task(command)
+                    if task is None:
+                        return lambda args: print("Unknown Command.")
                     else:
-                        self.logger.debug("Function Call: {}()".format(t[0]))
-                        return lambda args: t[1](t[0], args)
+                        return lambda args: task(args)
+
                 elif item.startswith("help_"):
                     # ToDo: helpの処理を書く
                     raise AttributeError
@@ -91,13 +91,14 @@ class __NBot(object):
         Command().cmdloop()
 
     def schedule_task(self, hours: List[int]=list([h for h in range(24)]), minutes: List[int]=list([0])) \
-            -> Callable[[Callable[[], None]], Callable[[str], None]]:
+            -> Callable[[Callable[[], None]], Callable[[], None]]:
 
         def f(func: Callable[[], None]) -> Callable[[str], None]:
+            name = '.'.join([getargvalues(stack()[1].frame).locals['__name__'], func.__name__])
 
             @wraps(func)
-            def decorated_func(module_name: str) -> None:
-                create_thread(func, module_name).start()
+            def decorated_func() -> None:
+                create_thread(func, name).start()
 
             for hour in hours:
                 for minute in minutes:
@@ -106,13 +107,14 @@ class __NBot(object):
 
         return f
 
-    def command_task(self, command: str) -> Callable[[Callable[[List[str]], None]], Callable[[str, List[str]], None]]:
+    def command_task(self, command: str) -> Callable[[Callable[[List[str]], None]], Callable[[List[str]], None]]:
 
-        def f(func: Callable[[List[str]], None]) -> Callable[[str, List[str]], None]:
+        def f(func: Callable[[List[str]], None]) -> Callable[[List[str]], None]:
+            name = '.'.join([getargvalues(stack()[1].frame).locals['__name__'], func.__name__])
 
             @wraps(func)
-            def decorated_func(module_name: str, args: List[str]) -> None:
-                create_thread(func, module_name, (args,)).start()
+            def decorated_func(args: List[str]) -> None:
+                create_thread(func, name, (args,)).start()
 
             self.plugin_manager.add_command_task(command, decorated_func)
             return decorated_func
