@@ -43,7 +43,3 @@ class PluginManager(object):
 
     def add_command_task(self, command: str, task: Callable[[List[str]], None]) -> None:
         self.__command_tasks[command] = task
-        print(dir(task))
-        print(dir(task.__closure__))
-        print(dir(task.__closure__[1]))
-        print(task.__closure__[1].cell_contents)
