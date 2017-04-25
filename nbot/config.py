@@ -6,7 +6,7 @@ class ConfigManager(object):
 
     def __init__(self):
         with open("config.json", "r") as f:
-            self.__config = json.loads(f.read())
+            self.__config: dict = json.loads(f.read())
 
     def get_config_value(self, path: str, default: Any=None):
         l = path.split(".")
