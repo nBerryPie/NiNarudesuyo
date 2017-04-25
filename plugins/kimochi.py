@@ -2,6 +2,7 @@
 from logging import getLogger
 from pyknp import Jumanpp
 import random
+from sys import modules
 import tweepy
 
 from nbot import bot
@@ -10,10 +11,9 @@ JUMANPP = Jumanpp()
 logger = getLogger(__name__)
 
 
-@bot.schedule_task(minutes=bot.config_manager.get_config_value("kimochi.minutes", []))
-def execute():
+def execute(data: dict):
     logger.info("準備するですよ")
-    api = bot.get_account(bot.config_manager.get_config_value("kimochi.account"))
+    api = bot.get_account(data["account"])
     if api is None:
         logger.warning("アカウントの取得に失敗しました")
     tl = api.home_timeline(count=100)
@@ -59,7 +59,7 @@ def execute():
             continue
         messages = [
             message["text"]
-            for message in bot.config_manager.get_config_value("kimochi.messages", ["{}"])
+            for message in (data["messages"] if "messages" in data else [{"text": "{}"}])
             if isinstance(message, dict)
             for _ in range(message["ratio"] if "ratio" in message else 1)
         ]
@@ -75,3 +75,10 @@ def execute():
         return
     logger.info("ツイートできなかったでごぜーます……")
 
+for name, plugin in bot.config_manager.get_config_value("kimochi", []).items():
+
+    def f():
+        execute(plugin)
+
+    f.__name__ = name
+    bot.schedule_task(minutes=plugin["minutes"] if "minutes" in plugin else [])(f)

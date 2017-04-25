@@ -13,17 +13,19 @@
     }
   },
   "kimochi": {
-    "account": "ninarudesuyo",
-    "minutes": [0, 15, 30, 45],
-    "messages": [
-      {
-        "text": "{}の気持ちになるですよ",
-        "ratio": 3
-      },
-      {
-        "text": "{}の気持ちがつかめなかったでごぜーます……",
-        "ratio": 1
-      }
-    ]
+    "ninarudesuyo":{
+      "account": "ninarudesuyo",
+      "minutes": [0, 15, 30, 45],
+      "messages": [
+        {
+          "text": "{}の気持ちになるですよ",
+          "ratio": 3
+        },
+        {
+          "text": "{}の気持ちがつかめなかったでごぜーます……",
+          "ratio": 1
+        }
+      ]
+    }
   }
 }
